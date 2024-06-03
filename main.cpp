@@ -51,16 +51,32 @@ void ejercicio_2() {
         std::cout << item << " ";
 }
 
+class Guardia {
+    std::mutex& mtx;
+public:
+    explicit Guardia(std::mutex &mtx)
+        : mtx(mtx) {
+        mtx.lock();
+    }
+    ~Guardia() {
+        mtx.unlock();
+    }
+};
+
 class Client {
-    double balance = 0;
+    std::mutex mtx;
+    // double balance = 0;
+    std::atomic<double> balance = 0;
 public:
     Client() = default;
     explicit Client(double initial_balance): balance(initial_balance) {}
     void add(double amount) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        // Guardia g(mtx); // std::lock_guard lg(mtx), std::unique_lock ul(mtx)
         balance += amount;
     }
     void substract(double amount) {
+        // Guardia g(mtx);
         balance -= amount;
     }
     friend std::ostream& operator << (std::ostream& os, const Client& client) {
